@@ -129,26 +129,32 @@ alter table public.students  enable row level security;
 alter table public.books     enable row level security;
 alter table public.records   enable row level security;
 
--- 헬퍼: 현재 사용자가 교사인가
+-- ⚠ SECURITY DEFINER: RLS 정책 내부에서 다른 RLS 테이블을 읽어야 하므로,
+-- 함수 실행 시 RLS 를 우회(소유자 권한으로 실행)해야 무한 재귀를 막을 수 있음.
+-- auth.uid() 는 여전히 호출자 컨텍스트를 참조하므로 본인 확인은 정상 동작.
+
 create or replace function public.is_teacher()
-returns boolean language sql stable as $$
+returns boolean language sql stable security definer set search_path = public as $$
   select exists(select 1 from public.profiles where id = auth.uid() and role = 'teacher');
 $$;
 
--- 헬퍼: 특정 학급의 담당 교사인가
 create or replace function public.owns_class(cid uuid)
-returns boolean language sql stable as $$
+returns boolean language sql stable security definer set search_path = public as $$
   select exists(select 1 from public.classes c where c.id = cid and c.teacher_id = auth.uid());
 $$;
 
--- 헬퍼: 특정 학생이 내가 담당하는 학급 소속인가
 create or replace function public.owns_student(sid uuid)
-returns boolean language sql stable as $$
+returns boolean language sql stable security definer set search_path = public as $$
   select exists(
     select 1 from public.students s
     join public.classes c on c.id = s.class_id
     where s.id = sid and c.teacher_id = auth.uid()
   );
+$$;
+
+create or replace function public.is_in_class(cid uuid)
+returns boolean language sql stable security definer set search_path = public as $$
+  select exists(select 1 from public.students where id = auth.uid() and class_id = cid);
 $$;
 
 -- ===== profiles =====
@@ -172,9 +178,7 @@ create policy "classes teacher all" on public.classes
 
 drop policy if exists "classes student read" on public.classes;
 create policy "classes student read" on public.classes
-  for select using (
-    exists(select 1 from public.students s where s.id = auth.uid() and s.class_id = classes.id)
-  );
+  for select using (public.is_in_class(id));
 
 -- ===== students =====
 drop policy if exists "students teacher all" on public.students;
