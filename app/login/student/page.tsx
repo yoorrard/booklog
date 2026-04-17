@@ -1,13 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { AuthShell } from "@/components/auth-shell";
 
-export default function StudentLoginPage() {
+export default function Page() {
+  return (
+    <Suspense fallback={null}>
+      <StudentLoginPage />
+    </Suspense>
+  );
+}
+
+function StudentLoginPage() {
   const router = useRouter();
   const params = useSearchParams();
   const next = params.get("next") || "/student";
