@@ -40,7 +40,7 @@ function NewBookModal({ onClose }: { onClose: () => void }) {
         title: it.volumeInfo?.title ?? "",
         authors: it.volumeInfo?.authors,
         thumbnail: (it.volumeInfo?.imageLinks?.thumbnail ?? it.volumeInfo?.imageLinks?.smallThumbnail ?? "").replace("http://", "https://")
-      })).filter(i => i.title);
+      })).filter((i: SearchItem) => i.title);
       setItems(arr);
     } catch { setItems([]); }
     setSearching(false);
