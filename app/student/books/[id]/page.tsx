@@ -18,7 +18,7 @@ export default async function BookDetail({ params }: { params: { id: string } })
 
   const { data: records } = await supabase
     .from("records")
-    .select("id, record_type, theme, title, content, mood, stars, created_at")
+    .select("id, book_id, student_id, record_type, theme, title, content, mood, stars, created_at")
     .eq("book_id", params.id)
     .order("created_at", { ascending: false });
 
