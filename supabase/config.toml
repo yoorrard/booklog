@@ -1,0 +1,36 @@
+# Supabase CLI 설정 (선택 사용)
+# `supabase link` + `supabase db push` 로 로컬 마이그레이션을 원격에 반영하고 싶을 때만 사용합니다.
+# CLI 를 쓰지 않고 Supabase 웹 SQL Editor 에 migrations/0001_init.sql 을 붙여넣어도 동일하게 동작합니다.
+
+project_id = "booklog"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/auth/callback"]
+jwt_expiry = 3600
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+enable_confirmations = true   # 이메일 인증 필수
+double_confirm_changes = true
+
+[auth.external.google]
+enabled = false               # CLI로 로컬 구성할 때만 사용. 프로덕션은 대시보드에서 설정.
