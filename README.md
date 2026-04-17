@@ -20,7 +20,9 @@
 ## 주요 기능
 
 ### 교사
-- 이메일 회원가입/로그인
+- **두 가지 가입/로그인 방식**
+  1. **이메일 가입**: 회원가입 시 인증 메일을 받고, 메일의 링크를 눌러야 로그인 가능
+  2. **Google 계정 연동**: 원클릭 OAuth 로그인 (최초 1회 동의 후 바로 사용)
 - 학급 생성 (초대 코드 자동 발급)
 - **학생 일괄 생성**: 번호·이름 붙여넣기 → 아이디 자동 생성 (`{join_code}-NN`) → 인쇄 가능한 배부표
 - 학급별 재학생 관리 (비밀번호 초기화·삭제)
@@ -46,6 +48,20 @@
    - `anon public` 키
    - `service_role` 키 (❗ 서버에서만 사용)
 3. `SQL Editor` 에 `supabase/migrations/0001_init.sql` 파일 내용을 붙여넣고 실행.
+
+#### 1-a. 이메일 인증(필수)
+1. `Authentication → Providers → Email` 에서 **Confirm email** 을 ON.
+2. `Authentication → URL Configuration` 에
+   - Site URL: `http://localhost:3000` (개발) / `https://your-domain.com` (프로덕션)
+   - Redirect URLs 에 `http://localhost:3000/auth/callback`, `https://your-domain.com/auth/callback` 를 모두 추가.
+3. (선택) `Authentication → Email Templates` 에서 “Confirm signup” 메일을 한국어로 번역. `{{ .ConfirmationURL }}` 은 그대로 두세요.
+
+#### 1-b. Google OAuth
+1. [Google Cloud Console](https://console.cloud.google.com/apis/credentials) 에서 **OAuth 2.0 클라이언트 ID** 생성 (웹 애플리케이션).
+   - 승인된 리디렉션 URI: `https://<PROJECT-REF>.supabase.co/auth/v1/callback`
+2. 발급된 Client ID / Client Secret 을 복사.
+3. Supabase `Authentication → Providers → Google` 에서 Enable Google → 값 붙여넣기 → Save.
+4. 같은 페이지의 **Callback URL** 이 위 Google 콘솔에 등록한 URI 와 일치하는지 확인.
 
 ### 2. 환경변수 설정
 ```bash
